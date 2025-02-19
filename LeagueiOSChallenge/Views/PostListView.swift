@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct PostListView: View {
-    @Environment(NetworkManager.self) private var networkManager
+    @Environment(\.networkManager) private var networkManager
     @State private var posts: [Post] = []
     @State private var selectedUser: User?
     @State private var error: Error? = nil

@@ -35,12 +35,12 @@ enum NetworkError: LocalizedError {
 }
 
 @Observable
-final class NetworkManager {
+final class NetworkManager: NetworkManagerProtocol {
     static let shared = NetworkManager()
 
     var userType: User.UserType = .none
     var currentUser: User?
-    private var apiToken: String?
+    var apiToken: String?
 
     private let apiHelper = APIHelper()
     private var userCache: [String: User] = [:]

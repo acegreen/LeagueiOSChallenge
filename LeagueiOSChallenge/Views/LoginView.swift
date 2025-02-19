@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct LoginView: View {
-    @Environment(NetworkManager.self) private var networkManager
+    @Environment(\.networkManager) private var networkManager
     @State private var username = ""
     @State private var password = ""
     @State private var isLoading = false
