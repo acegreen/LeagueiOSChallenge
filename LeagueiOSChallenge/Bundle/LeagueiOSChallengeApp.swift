@@ -12,7 +12,7 @@ import Observation
 struct LeagueiOSChallengeApp: App {
     @State private var networkManager: NetworkManager = {
         if ProcessInfo.processInfo.arguments.contains("UI-Testing") {
-            return MockNetworkManager.configureForUITesting()
+            return MockNetworkManager()
         }
         return NetworkManager(apiHelper: APIHelper())
     }()
@@ -21,6 +21,7 @@ struct LeagueiOSChallengeApp: App {
         WindowGroup {
             ContentView()
                 .environment(networkManager)
+                .tint(Color.accentColor)
         }
     }
 }

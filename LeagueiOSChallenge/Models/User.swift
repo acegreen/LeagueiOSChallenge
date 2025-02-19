@@ -7,6 +7,8 @@
 
 import Foundation
 
+/// Represents a user in the system
+/// Contains all user profile information and validation logic
 struct User: Codable, Identifiable {
     let id: Int
     let name: String
@@ -18,20 +20,23 @@ struct User: Codable, Identifiable {
     let address: Address?
     let company: Company?
     
-    // Conform to Identifiable with String ID
+    /// String representation of the user's ID for Identifiable conformance
     var stringId: String { String(id) }
     
-    // Computed property for avatar URL with fallback
+    /// Avatar URL with fallback to placeholder if none provided
     var avatarURLString: String {
-        avatar ?? "https://placekitten.com/200/200"
+        avatar ?? "https://placehold.co/200x200"
     }
 
+    /// Represents the authentication state of a user
     enum UserType {
         case none
         case guest
         case loggedIn
     }
 
+    /// Validates the user's email domain
+    /// - Returns: true if email ends with .com, .net, or .biz
     var isEmailValid: Bool {
         let validDomains = [".com", ".net", ".biz"]
         return validDomains.contains { email.hasSuffix($0) }

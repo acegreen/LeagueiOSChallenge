@@ -8,106 +8,84 @@
 import Foundation
 @testable import LeagueiOSChallenge
 
+/// Mock implementation of NetworkManager for testing purposes
+/// Provides controlled responses and error states for testing network operations
 final class MockNetworkManager: NetworkManager {
-    var shouldFailLogin = false
-    var mockUser: User?
-    var mockPosts: [Post] = []
-    private var mockUsers: [Int: User] = [:]
     
+    private func createMockUser(id: Int, username: String) -> User {
+        User(
+            id: id,
+            name: "Test User \(id)",
+            username: username,
+            email: "test\(id)@example.ca",
+            avatar: "https://placehold.co/200x200",
+            website: "test.website",
+            phone: "123-456-7890",
+            address: nil,
+            company: nil
+        )
+    }
+    
+    /// Simulates user login with mock credentials
+    /// - Parameters:
+    ///   - username: Test username ("invalid" for testing invalid credentials)
+    ///   - password: Test password
+    /// - Throws: NetworkError.invalidCredentials when username is "invalid"
     override func login(username: String, password: String) async throws {        
-        if shouldFailLogin {
+        if username == "invalid" {
             throw NetworkError.invalidCredentials
         }
         
         // Set authorization state
         self.apiToken = "mock-token-\(username)"
-        self.currentUser = mockUser
+        self.currentUser = createMockUser(id: 1, username: username)
         self.userType = .loggedIn
     }
     
+    /// Simulates guest login functionality
+    /// - Throws: NetworkError for network failures
     override func continueAsGuest() async throws {        
-        if shouldFailLogin {
-            throw NetworkError.networkError(NSError(domain: "", code: -1))
-        }
-        
         // Set authorization state
         self.apiToken = "mock-guest-token"
         self.userType = .guest
         self.currentUser = nil
     }
     
-    override func fetchPosts() async throws -> [Post] {        
+    /// Returns mock posts for testing
+    /// - Returns: Array of mock Post objects
+    /// - Throws: NetworkError.unauthorized if no valid token exists
+    override func fetchPosts(withId: Int? = nil) async throws -> [Post] {
         guard apiToken != nil else {
             throw NetworkError.unauthorized
         }
         
-        return mockPosts
+        return [
+            Post(
+                id: 1,
+                userId: 1,
+                title: "Test Post",
+                body: "This is a test post description",
+                imageURL: "https://placehold.co/200x200"
+            )
+        ]
     }
     
+    /// Retrieves or creates a mock user for testing
+    /// - Parameter userId: The ID of the mock user to fetch
+    /// - Returns: A mock User object
+    /// - Throws: NetworkError.unauthorized if no valid token exists
     override func fetchUser(withId userId: Int) async throws -> User {
         guard apiToken != nil else {
             throw NetworkError.unauthorized
         }
         
-        if let user = mockUsers[userId] {
-            return user
-        }
-        
-        let newUser = User(
-            id: userId,
-            name: "Test User \(userId)",
-            username: "testuser\(userId)",
-            email: "test\(userId)@invalid.me",
-            avatar: "https://placekitten.com/200/200",
-            website: "test.website",
-            phone: "123-456-7890",
-            address: nil,
-            company: nil
-        )
-        mockUsers[userId] = newUser
-        return newUser
+        return createMockUser(id: userId, username: "testuser\(userId)")
     }
     
+    /// Simulates logout by clearing all mock authentication state
     override func logout() {
         userType = .none
         currentUser = nil
         apiToken = nil
     }
 }
-
-#if DEBUG
-extension MockNetworkManager {
-    static func configureForUITesting() -> MockNetworkManager {
-        let mockManager = MockNetworkManager()
-        
-        // Create mock posts with a specific ID for testing
-        mockManager.mockPosts = [
-            Post(
-                id: 1,
-                userId: 1,
-                title: "Test Post",
-                body: "This is a test post description",
-                imageURL: "https://placekitten.com/800/400"
-            )
-        ]
-        
-        // Create mock user with invalid email to trigger warning
-        let mockUser = User(
-            id: 1,
-            name: "Test User",
-            username: "testuser",
-            email: "test@invalid.me", // Invalid email format to trigger warning
-            avatar: "https://placekitten.com/200/200",
-            website: "test.website",
-            phone: "123-456-7890",
-            address: nil,
-            company: nil
-        )
-        
-        mockManager.mockUser = mockUser
-        mockManager.mockUsers[1] = mockUser
-        
-        return mockManager
-    }
-}
-#endif 

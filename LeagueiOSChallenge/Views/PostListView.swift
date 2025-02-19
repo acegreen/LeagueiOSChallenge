@@ -20,19 +20,10 @@ struct PostListView: View {
                 if !posts.isEmpty {
                     List {
                         ForEach(posts) { post in
-                            PostRowView(post: post)
-                                .contentShape(Rectangle())
-                                .accessibilityIdentifier("PostCell")
-                                .onTapGesture {
-                                    Task {
-                                        do {
-                                            let user = try await networkManager.fetchUser(withId: post.userId)
-                                            selectedUser = user
-                                        } catch {
-                                            self.error = error
-                                        }
-                                    }
-                                }
+                            PostRowView(post: post) { user in
+                                selectedUser = user
+                            }
+                            .accessibilityIdentifier("PostCell")
                         }
                     }
                     .listStyle(.plain)
@@ -55,7 +46,7 @@ struct PostListView: View {
                 }
             }
             .task {
-                await loadPosts()
+                await loadPosts(userId: networkManager.currentUser?.id)
             }
             .sheet(item: $selectedUser) { user in
                 UserInformationView(user: user)
@@ -72,9 +63,9 @@ struct PostListView: View {
         }
     }
     
-    private func loadPosts() async {
+    private func loadPosts(userId: Int? = nil) async {
         do {
-            posts = try await networkManager.fetchPosts()
+            posts = try await networkManager.fetchPosts(withId: userId)
         } catch {
             self.error = error
         }
@@ -86,6 +77,7 @@ struct PostRowView: View {
     @Environment(NetworkManager.self) private var networkManager
     @State private var user: User?
     @State private var error: Error?
+    let onUserTapped: (User) -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -98,15 +90,19 @@ struct PostRowView: View {
                     } placeholder: {
                         Color.gray
                     }
-                    .frame(width: 40, height: 40)
+                    .frame(width: 48, height: 48)
                     .clipShape(Circle())
+                    .onTapGesture {
+                        onUserTapped(user)
+                    }
                     
                     Text(user.username)
                         .fontWeight(.bold)
+                        .foregroundColor(.purple)
                         .accessibilityIdentifier("Username")
                 } else {
                     ProgressView()
-                        .frame(width: 40, height: 40)
+                        .frame(width: 48, height: 48)
                     Text("Loading...")
                         .foregroundColor(.secondary)
                 }
@@ -129,5 +125,11 @@ struct PostRowView: View {
         .padding(.vertical, 8)
         .errorAlert(error: $error)
         .accessibilityIdentifier("PostRow")
+        .contentShape(Rectangle())
+        .onTapGesture {
+            if let user = user {
+                onUserTapped(user)
+            }
+        }
     }
 }

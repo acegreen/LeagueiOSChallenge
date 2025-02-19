@@ -35,19 +35,32 @@ enum NetworkError: LocalizedError {
     }
 }
 
-@Observable
-class NetworkManager: NetworkManagerProtocol {
+/// Manages all network operations and authentication state for the application
+/// Responsible for:
+/// - User authentication (login, guest access, logout)
+/// - API token management
+/// - User session state
+/// - Network requests caching
+@Observable class NetworkManager: NetworkManagerProtocol {
     var userType: User.UserType = .none
     var currentUser: User?
     var apiToken: String?
 
     private let apiHelper: APIHelper
     private var userCache: [String: User] = [:]
+    private var hasLoadedAllUsers = false
 
     init(apiHelper: APIHelper = APIHelper()) {
         self.apiHelper = apiHelper
     }
 
+    /// Attempts to authenticate a user with provided credentials
+    /// - Parameters:
+    ///   - username: The user's username
+    ///   - password: The user's password
+    /// - Throws: NetworkError.invalidCredentials if authentication fails
+    ///          NetworkError.networkError for other failures
+    /// - Note: On successful login, updates userType to .loggedIn and stores the API token
     @MainActor
     func login(username: String, password: String) async throws {
         print("Attempting to log in with username: \(username)")
@@ -59,10 +72,17 @@ class NetworkManager: NetworkManagerProtocol {
             // Store token for future API calls
             self.apiToken = token
 
-            // Fetch actual user profile
-            self.currentUser = try await apiHelper.fetchUsers(tokens: [token]).first
-            print("User logged in: \(self.currentUser?.username ?? "Unknown")")
-            self.userType = .loggedIn
+            // Load all users into cache
+            try await loadAllUsers()
+            
+            // Find matching user from cache (case-insensitive)
+            if let matchingUser = userCache.values.first(where: { $0.username.lowercased() == username.lowercased() }) {
+                self.currentUser = matchingUser
+                print("User logged in: \(self.currentUser?.username ?? "Unknown")")
+                self.userType = .loggedIn
+            } else {
+                throw NetworkError.invalidInput("User not found")
+            }
 
         } catch APIError.invalidEndpoint {
             throw NetworkError.networkError(APIError.invalidEndpoint)
@@ -75,18 +95,49 @@ class NetworkManager: NetworkManagerProtocol {
         }
     }
 
+    /// Fetches all posts from the API
+    /// - Returns: Array of Post objects
+    /// - Throws: NetworkError.unauthorized if no valid token exists
+    ///          NetworkError.networkError for other failures
+    /// - Note: Requires a valid API token
     @MainActor
-    func fetchPosts() async throws -> [Post] {
+    func fetchPosts(withId userId: Int? = nil) async throws -> [Post] {
         guard let token = apiToken else {
             throw NetworkError.unauthorized
         }
 
-        return try await apiHelper.fetchPosts(token: token)
+        return try await apiHelper.fetchPosts(token: token, userId: userId)
     }
 
+    /// Fetches all users and caches them for future use
+    @MainActor
+    private func loadAllUsers() async throws {
+        guard !hasLoadedAllUsers, let token = apiToken else {
+            if apiToken == nil {
+                throw NetworkError.unauthorized
+            }
+            return
+        }
+        
+        print("Fetching all users")
+        let users = try await apiHelper.fetchUsers(token: token)
+        
+        // Cache all users
+        for user in users {
+            userCache[String(user.id)] = user
+        }
+        
+        hasLoadedAllUsers = true
+        print("Cached \(users.count) users")
+    }
+
+    /// Fetches a specific user by their ID, using cache when available
+    /// - Parameter userId: The unique identifier of the user
+    /// - Returns: User object matching the provided ID
+    /// - Throws: NetworkError.unauthorized if no valid token exists
+    ///          NetworkError.networkError if user not found or other failures
     @MainActor
     func fetchUser(withId userId: Int) async throws -> User {
-        // Convert userId to string since that's what the API expects
         let userIdString = String(userId)
         
         // Check cache first
@@ -95,22 +146,7 @@ class NetworkManager: NetworkManagerProtocol {
             return cachedUser
         }
         
-        guard let token = apiToken else {
-            throw NetworkError.unauthorized
-        }
-        
-        print("Fetching user with ID: \(userId)")
-        let users = try await apiHelper.fetchUsers(tokens: [token])
-        
-        // Find the user with matching ID
-        guard let user = users.first(where: { $0.id == userId }) else {
-            throw NetworkError.networkError(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "User not found"]))
-        }
-        
-        // Cache the user
-        print("Caching user with ID: \(userId)")
-        userCache[userIdString] = user
-        return user
+        throw NetworkError.networkError(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "User not found"]))
     }
 
     @MainActor
@@ -123,6 +159,10 @@ class NetworkManager: NetworkManagerProtocol {
             
             // Store token for future API calls
             self.apiToken = token
+            
+            // Load all users into cache
+            try await loadAllUsers()
+            
             self.userType = .guest
             self.currentUser = nil
             
@@ -137,5 +177,7 @@ class NetworkManager: NetworkManagerProtocol {
         userType = .none
         currentUser = nil
         apiToken = nil
+        userCache.removeAll()
+        hasLoadedAllUsers = false
     }
 }

@@ -7,6 +7,8 @@
 
 import Foundation
 
+/// Represents a post in the system
+/// Contains post content and other metadata
 struct Post: Codable, Identifiable {
     let id: Int
     let userId: Int
@@ -22,6 +24,6 @@ struct Post: Codable, Identifiable {
         case imageURL
     }
     
-    // Conform to Identifiable with String ID
+    /// String representation of the post's ID for Identifiable conformance
     var stringId: String { String(id) }
 } 

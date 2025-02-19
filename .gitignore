@@ -105,3 +105,10 @@ iOSInjectionProject/
 # Xcode
 *.xcarchive
 !*.xcodeproj/project.pbxproj  # Add this line to ensure project.pbxproj is not ignored
+
+# Test results
+*.xcresult/
+TestResults.xcresult/
+
+# Postman Collections
+.results/LeagueAPI.postman_collection.json

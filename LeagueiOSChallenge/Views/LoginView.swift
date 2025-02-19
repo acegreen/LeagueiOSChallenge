@@ -16,8 +16,13 @@ struct LoginView: View {
     
     var body: some View {
         VStack(spacing: 20) {
-            Text("Welcome")
-                .font(.largeTitle)
+            Image("logoIcon")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 160, height: 160)
+
+            Text("Sign in to League")
+                .font(.title)
                 .fontWeight(.bold)
             
             TextField("Username", text: $username)
@@ -49,8 +54,10 @@ struct LoginView: View {
             }
             .disabled(isLoading)
             .accessibilityIdentifier("Continue as guest")
+
+            Spacer()
         }
-        .padding()
+        .padding(24)
         .errorAlert(error: $error)
     }
     
@@ -82,5 +89,5 @@ struct LoginView: View {
 
 #Preview {
     LoginView()
-        .environment(MockNetworkManager.configureForUITesting())
+        .environment(MockNetworkManager())
 } 

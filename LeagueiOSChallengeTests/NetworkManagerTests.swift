@@ -14,17 +14,6 @@ final class NetworkManagerTests: XCTestCase {
     override func setUp() {
         super.setUp()
         mockNetworkManager = MockNetworkManager()
-        mockNetworkManager.mockUser = User(
-            id: 1,
-            name: "Test User",
-            username: "testuser",
-            email: "test@example.com",
-            avatar: nil,
-            website: nil,
-            phone: nil,
-            address: nil,
-            company: nil
-        )
     }
     
     override func tearDown() {
@@ -51,9 +40,7 @@ final class NetworkManagerTests: XCTestCase {
     }
     
     func testInvalidLogin() async {
-        // Configure mock to fail login
-        mockNetworkManager.shouldFailLogin = true
-        
+
         // Test invalid login
         do {
             try await mockNetworkManager.login(username: "invalid", password: "invalid")

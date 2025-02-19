@@ -29,6 +29,7 @@ struct UserInformationView: View {
                     Text(user.name)
                         .font(.title)
                         .fontWeight(.bold)
+                        .foregroundColor(.purple)
                         .accessibilityIdentifier("Username")
 
                     VStack(alignment: .leading, spacing: 12) {
@@ -55,10 +56,10 @@ struct UserInformationView: View {
             .accessibilityIdentifier("UserInfoView")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
+                    Button("Close") {
                         dismiss()
                     }
-                    .accessibilityIdentifier("Done")
+                    .accessibilityIdentifier("CloseButton")
                 }
             }
         }

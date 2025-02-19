@@ -1,8 +1,8 @@
 //
-//  APIHelper.swift
+//  NetworkManager.swift
 //  LeagueiOSChallenge
 //
-//  Copyright © 2024 League Inc. All rights reserved.
+//  Created by AceGreen on 2025-02-18.
 //
 
 import Foundation
@@ -34,13 +34,21 @@ enum APIEndpoint: String {
     }
 }
 
+/// Handles direct API communication and request formatting
+/// Responsible for:
+/// - Constructing API requests
+/// - Handling API responses
+/// - Error translation
 class APIHelper {
-
-    func fetchUserToken(
-        username: String,
-        password: String) async throws
-    -> String
-    {
+    /// Fetches an API token for authentication
+    /// - Parameters:
+    ///   - username: The user's username (empty for guest access)
+    ///   - password: The user's password (empty for guest access)
+    /// - Returns: API token string
+    /// - Throws: APIError.invalidEndpoint if URL construction fails
+    ///          APIError.unauthorized for invalid credentials
+    ///          APIError.decodeFailure for invalid response format
+    func fetchUserToken(username: String, password: String) async throws -> String {
         guard let url = APIEndpoint.login.getURL() else {
             print("Invalid endpoint URL")
             throw APIError.invalidEndpoint
@@ -69,8 +77,19 @@ class APIHelper {
         }
     }
     
-    func fetchPosts(token: String) async throws -> [Post] {
-        guard let url = APIEndpoint.posts.getURL() else {
+    /// Fetches posts from the API
+    /// - Parameter token: Valid API token for authentication
+    /// - Returns: Array of Post objects
+    /// - Throws: APIError.invalidEndpoint if URL construction fails
+    ///          APIError.unauthorized for invalid token
+    ///          APIError.decodeFailure for invalid response format
+    func fetchPosts(token: String, userId: Int? = nil) async throws -> [Post] {
+        var queryItems: [URLQueryItem]? = nil
+        if let userId = userId {
+            queryItems = [URLQueryItem(name: "userId", value: String(userId))]
+        }
+        
+        guard let url = APIEndpoint.posts.getURL(queryItems: queryItems) else {
             print("Invalid posts endpoint URL")
             throw APIError.invalidEndpoint
         }
@@ -104,14 +123,14 @@ class APIHelper {
         }
     }
 
-    func fetchUsers(tokens: [String]) async throws -> [User] {
+    func fetchUsers(token: String) async throws -> [User] {
         guard let url = APIEndpoint.users.getURL() else {
             print("Invalid users endpoint URL")
             throw APIError.invalidEndpoint
         }
         
         var request = URLRequest(url: url)
-        request.setValue(tokens.joined(separator: ","), forHTTPHeaderField: "x-access-token")
+        request.setValue(token, forHTTPHeaderField: "x-access-token")
         
         print("Fetching users from \(url)")
         let (data, response) = try await URLSession.shared.data(for: request)
@@ -128,7 +147,6 @@ class APIHelper {
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         
         do {
-            // Decode as array of users
             let users = try decoder.decode([User].self, from: data)
             print("Successfully decoded \(users.count) users")
             return users

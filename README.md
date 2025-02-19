@@ -2,8 +2,34 @@
 
 ## Overview
 The goal of this challenge is to create a basic social media app to showcase your engineering skills.
-- API documentation for this challenge can be found [here](#)
+- API documentation for this challenge can be found [here](https://engineering.league.dev/challenge/api/)
 - A project is provided to assist in getting started
+
+## Installation
+1. Clone the repository
+```bash
+git clone [repository-url]
+cd LeagueiOSChallenge
+```
+
+2. Open the project in Xcode
+```bash
+open LeagueiOSChallenge.xcodeproj
+```
+
+3. Build and run the project (⌘R)
+   - Minimum iOS version: 17.6
+   - Xcode version: 15.0+
+
+## Testing
+The project includes both unit tests and UI tests. To run the tests:
+
+In Xcode: 
+  - Use ⌘U to run all tests
+  - Or navigate to Test Navigator (⌘6) to run specific tests
+
+- Full Test Bundle: `.results/TestResults.xcresult`
+- Postman Collection: `.results/Postman Collection.postman_collection`
 
 ## Considerations
 - You have creative control over the designs, but won't be graded on it
