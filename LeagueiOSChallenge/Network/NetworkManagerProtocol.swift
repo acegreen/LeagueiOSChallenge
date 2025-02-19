@@ -5,27 +5,17 @@
 //  Created by AceGreen on 2025-02-18.
 //
 
-import Foundation
 import SwiftUI
+import Observation
 
-protocol NetworkManagerProtocol: Observable {
+protocol NetworkManagerProtocol: AnyObject {
     var userType: User.UserType { get set }
     var currentUser: User? { get set }
+    var apiToken: String? { get set }
     
     func login(username: String, password: String) async throws
-    func continueAsGuest() async throws
     func fetchPosts() async throws -> [Post]
-    func fetchUser(withId: Int) async throws -> User
+    func fetchUser(withId userId: Int) async throws -> User
+    func continueAsGuest() async throws
     func logout()
 }
-
-private struct NetworkManagerKey: EnvironmentKey {
-    static let defaultValue: NetworkManagerProtocol = NetworkManager.shared
-}
-
-extension EnvironmentValues {
-    var networkManager: NetworkManagerProtocol {
-        get { self[NetworkManagerKey.self] }
-        set { self[NetworkManagerKey.self] = newValue }
-    }
-} 

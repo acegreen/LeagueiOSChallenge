@@ -58,6 +58,7 @@ struct UserInformationView: View {
                     Button("Done") {
                         dismiss()
                     }
+                    .accessibilityIdentifier("Done")
                 }
             }
         }
@@ -80,9 +81,12 @@ struct InfoRow: View {
                 if showWarning {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .foregroundColor(.yellow)
+                        .accessibilityLabel("Warning")
+                        .accessibilityIdentifier("EmailWarningIcon")
                 }
             }
         }
+        .accessibilityIdentifier("InfoRow")
     }
 }
 

@@ -6,13 +6,21 @@
 //
 
 import SwiftUI
+import Observation
 
 @main
 struct LeagueiOSChallengeApp: App {
+    @State private var networkManager: NetworkManager = {
+        if ProcessInfo.processInfo.arguments.contains("UI-Testing") {
+            return MockNetworkManager.configureForUITesting()
+        }
+        return NetworkManager(apiHelper: APIHelper())
+    }()
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environment(NetworkManager.shared)
+                .environment(networkManager)
         }
     }
-} 
+}

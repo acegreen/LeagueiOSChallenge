@@ -8,29 +8,34 @@
 import SwiftUI
 
 struct PostListView: View {
-    @Environment(\.networkManager) private var networkManager
+    @Environment(NetworkManager.self) private var networkManager
     @State private var posts: [Post] = []
     @State private var selectedUser: User?
     @State private var error: Error? = nil
     @State private var showingThankYouAlert = false
 
     var body: some View {
-        NavigationStack {
+        NavigationView {
             Group {
                 if !posts.isEmpty {
-                    List(posts) { post in
-                        PostRowView(post: post)
-                            .accessibilityIdentifier("PostRow")
-                            .onTapGesture {
-                                Task {
-                                    do {
-                                        selectedUser = try await post.fetchUser()
-                                    } catch {
-                                        self.error = error
+                    List {
+                        ForEach(posts) { post in
+                            PostRowView(post: post)
+                                .contentShape(Rectangle())
+                                .accessibilityIdentifier("PostCell")
+                                .onTapGesture {
+                                    Task {
+                                        do {
+                                            let user = try await networkManager.fetchUser(withId: post.userId)
+                                            selectedUser = user
+                                        } catch {
+                                            self.error = error
+                                        }
                                     }
                                 }
-                            }
+                        }
                     }
+                    .listStyle(.plain)
                     .accessibilityIdentifier("PostsList")
                 } else {
                     ProgressView()
@@ -54,6 +59,7 @@ struct PostListView: View {
             }
             .sheet(item: $selectedUser) { user in
                 UserInformationView(user: user)
+                    .accessibilityIdentifier("UserInfoView")
             }
             .alert("Thank You!", isPresented: $showingThankYouAlert) {
                 Button("OK") {
@@ -77,6 +83,7 @@ struct PostListView: View {
 
 struct PostRowView: View {
     let post: Post
+    @Environment(NetworkManager.self) private var networkManager
     @State private var user: User?
     @State private var error: Error?
     
@@ -85,7 +92,9 @@ struct PostRowView: View {
             HStack {
                 if let user = user {
                     AsyncImage(url: URL(string: user.avatarURLString)) { image in
-                        image.resizable()
+                        image
+                            .resizable()
+                            .accessibilityIdentifier("Avatar")
                     } placeholder: {
                         Color.gray
                     }
@@ -94,6 +103,7 @@ struct PostRowView: View {
                     
                     Text(user.username)
                         .fontWeight(.bold)
+                        .accessibilityIdentifier("Username")
                 } else {
                     ProgressView()
                         .frame(width: 40, height: 40)
@@ -103,7 +113,7 @@ struct PostRowView: View {
             }
             .task {
                 do {
-                    user = try await post.fetchUser()
+                    user = try await networkManager.fetchUser(withId: post.userId)
                 } catch {
                     self.error = error
                 }
@@ -118,5 +128,6 @@ struct PostRowView: View {
         }
         .padding(.vertical, 8)
         .errorAlert(error: $error)
+        .accessibilityIdentifier("PostRow")
     }
-} 
+}

@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
     @Environment(NetworkManager.self) private var networkManager
-
+    
     var body: some View {
         Group {
             switch networkManager.userType {
@@ -20,9 +20,9 @@ struct ContentView: View {
             }
         }
     }
-} 
+}
 
 #Preview {
     ContentView()
-        .environment(NetworkManager.shared)
+        .environment(MockNetworkManager.configureForUITesting())
 }

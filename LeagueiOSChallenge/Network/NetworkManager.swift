@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import Observation
 
 enum NetworkError: LocalizedError {
     case invalidCredentials
@@ -35,17 +36,17 @@ enum NetworkError: LocalizedError {
 }
 
 @Observable
-final class NetworkManager: NetworkManagerProtocol {
-    static let shared = NetworkManager()
-
+class NetworkManager: NetworkManagerProtocol {
     var userType: User.UserType = .none
     var currentUser: User?
     var apiToken: String?
 
-    private let apiHelper = APIHelper()
+    private let apiHelper: APIHelper
     private var userCache: [String: User] = [:]
 
-    private init() {}
+    init(apiHelper: APIHelper = APIHelper()) {
+        self.apiHelper = apiHelper
+    }
 
     @MainActor
     func login(username: String, password: String) async throws {

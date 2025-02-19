@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct LoginView: View {
-    @Environment(\.networkManager) private var networkManager
+    @Environment(NetworkManager.self) private var networkManager
     @State private var username = ""
     @State private var password = ""
     @State private var isLoading = false
@@ -78,4 +78,9 @@ struct LoginView: View {
         }
         isLoading = false
     }
+}
+
+#Preview {
+    LoginView()
+        .environment(MockNetworkManager.configureForUITesting())
 } 

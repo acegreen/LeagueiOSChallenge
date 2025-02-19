@@ -24,10 +24,4 @@ struct Post: Codable, Identifiable {
     
     // Conform to Identifiable with String ID
     var stringId: String { String(id) }
-    
-    // Instead of a computed property, let's make this a function
-    // This avoids the 'noncopyable type' error
-    func fetchUser() async throws -> User {
-        return try await NetworkManager.shared.fetchUser(withId: userId)
-    }
 } 
