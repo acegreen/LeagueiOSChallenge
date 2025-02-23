@@ -10,10 +10,12 @@ import XCTest
 
 final class NetworkManagerTests: XCTestCase {
     var mockNetworkManager: MockNetworkManager!
+    var cacheManager: CacheManager!
     
     override func setUp() {
         super.setUp()
-        mockNetworkManager = MockNetworkManager()
+        cacheManager = CacheManager()
+        mockNetworkManager = MockNetworkManager(cacheManager: cacheManager)
     }
     
     override func tearDown() {
@@ -32,15 +34,15 @@ final class NetworkManagerTests: XCTestCase {
     
     func testUserLogin() async throws {
         // Test valid login
-        try await mockNetworkManager.login(username: "testUser", password: "testPass")
+        try await mockNetworkManager.login(username: "testuser1", password: "testPass")
         
         XCTAssertEqual(mockNetworkManager.userType, .loggedIn)
         XCTAssertNotNil(mockNetworkManager.currentUser)
+        XCTAssertEqual(mockNetworkManager.currentUser?.username, "testuser1")
         XCTAssertNotNil(mockNetworkManager.apiToken)
     }
     
     func testInvalidLogin() async {
-
         // Test invalid login
         do {
             try await mockNetworkManager.login(username: "invalid", password: "invalid")

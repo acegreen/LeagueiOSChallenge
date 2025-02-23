@@ -33,6 +33,7 @@
 		231482A52D65997600F65CF7 /* Exceptions for "LeagueiOSChallengeTests" folder in "LeagueiOSChallenge" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Mocks/MockAPIHelper.swift,
 				Mocks/MockNetworkManager.swift,
 			);
 			target = 231481C92D65659F00F65CF7 /* LeagueiOSChallenge */;

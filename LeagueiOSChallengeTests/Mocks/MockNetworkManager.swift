@@ -12,6 +12,10 @@ import Foundation
 /// Provides controlled responses and error states for testing network operations
 final class MockNetworkManager: NetworkManager {
     
+    init(cacheManager: CacheManager = CacheManager()) {
+        super.init(apiHelper: MockAPIHelper(), cacheManager: cacheManager)
+    }
+    
     private func createMockUser(id: Int, username: String) -> User {
         User(
             id: id,
@@ -31,24 +35,18 @@ final class MockNetworkManager: NetworkManager {
     ///   - username: Test username ("invalid" for testing invalid credentials)
     ///   - password: Test password
     /// - Throws: NetworkError.invalidCredentials when username is "invalid"
-    override func login(username: String, password: String) async throws {        
-        if username == "invalid" {
-            throw NetworkError.invalidCredentials
-        }
-        
-        // Set authorization state
-        self.apiToken = "mock-token-\(username)"
-        self.currentUser = createMockUser(id: 1, username: username)
-        self.userType = .loggedIn
+    override func login(username: String, password: String) async throws {
+        try await super.login(username: username, password: password)
     }
     
     /// Simulates guest login functionality
     /// - Throws: NetworkError for network failures
-    override func continueAsGuest() async throws {        
-        // Set authorization state
+    override func continueAsGuest() async throws {
         self.apiToken = "mock-guest-token"
         self.userType = .guest
-        self.currentUser = nil
+        
+        // Load all users into cache
+        try await loadAllUsers()
     }
     
     /// Returns mock posts for testing

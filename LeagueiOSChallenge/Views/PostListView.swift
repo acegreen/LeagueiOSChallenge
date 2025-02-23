@@ -75,6 +75,7 @@ struct PostListView: View {
 struct PostRowView: View {
     let post: Post
     @Environment(NetworkManager.self) private var networkManager
+    @Environment(CacheManager.self) private var cacheManager
     @State private var user: User?
     @State private var error: Error?
     let onUserTapped: (User) -> Void
@@ -109,7 +110,13 @@ struct PostRowView: View {
             }
             .task {
                 do {
-                    user = try await networkManager.fetchUser(withId: post.userId)
+                    // First check the cache
+                    if let cachedUser = cacheManager.getUser(withId: post.userId) {
+                        user = cachedUser
+                    } else {
+                        // If not in cache, fetch from network
+                        user = try await networkManager.fetchUser(withId: post.userId)
+                    }
                 } catch {
                     self.error = error
                 }

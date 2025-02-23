@@ -47,11 +47,11 @@ enum NetworkError: LocalizedError {
     var apiToken: String?
 
     private let apiHelper: APIHelper
-    private var userCache: [String: User] = [:]
-    private var hasLoadedAllUsers = false
+    private let cacheManager: CacheManager
 
-    init(apiHelper: APIHelper = APIHelper()) {
+    init(apiHelper: APIHelper = APIHelper(), cacheManager: CacheManager) {
         self.apiHelper = apiHelper
+        self.cacheManager = cacheManager
     }
 
     /// Attempts to authenticate a user with provided credentials
@@ -76,7 +76,7 @@ enum NetworkError: LocalizedError {
             try await loadAllUsers()
             
             // Find matching user from cache (case-insensitive)
-            if let matchingUser = userCache.values.first(where: { $0.username.lowercased() == username.lowercased() }) {
+            if let matchingUser = cacheManager.getUser(withUsername: username) {
                 self.currentUser = matchingUser
                 print("User logged in: \(self.currentUser?.username ?? "Unknown")")
                 self.userType = .loggedIn
@@ -111,8 +111,8 @@ enum NetworkError: LocalizedError {
 
     /// Fetches all users and caches them for future use
     @MainActor
-    private func loadAllUsers() async throws {
-        guard !hasLoadedAllUsers, let token = apiToken else {
+    internal func loadAllUsers() async throws {
+        guard !cacheManager.isUsersCached, let token = apiToken else {
             if apiToken == nil {
                 throw NetworkError.unauthorized
             }
@@ -121,14 +121,7 @@ enum NetworkError: LocalizedError {
         
         print("Fetching all users")
         let users = try await apiHelper.fetchUsers(token: token)
-        
-        // Cache all users
-        for user in users {
-            userCache[String(user.id)] = user
-        }
-        
-        hasLoadedAllUsers = true
-        print("Cached \(users.count) users")
+        cacheManager.cacheUsers(users)
     }
 
     /// Fetches a specific user by their ID, using cache when available
@@ -138,10 +131,8 @@ enum NetworkError: LocalizedError {
     ///          NetworkError.networkError if user not found or other failures
     @MainActor
     func fetchUser(withId userId: Int) async throws -> User {
-        let userIdString = String(userId)
-        
         // Check cache first
-        if let cachedUser = userCache[userIdString] {
+        if let cachedUser = cacheManager.getUser(withId: userId) {
             print("Returning cached user for ID: \(userId)")
             return cachedUser
         }
@@ -177,7 +168,6 @@ enum NetworkError: LocalizedError {
         userType = .none
         currentUser = nil
         apiToken = nil
-        userCache.removeAll()
-        hasLoadedAllUsers = false
+        cacheManager.clearCache()
     }
 }
