@@ -24,9 +24,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		231481CA2D65659F00F65CF7 /* LeagueiOSChallenge.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LeagueiOSChallenge.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		231481DA2D6565A000F65CF7 /* LeagueiOSChallengeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LeagueiOSChallengeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		231481E42D6565A000F65CF7 /* LeagueiOSChallengeUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LeagueiOSChallengeUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		231488572D6D12C100F65CF7 /* LeagueiOSChallenge.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LeagueiOSChallenge.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		231488582D6D12C100F65CF7 /* LeagueiOSChallengeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LeagueiOSChallengeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		231488592D6D12C100F65CF7 /* LeagueiOSChallengeUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LeagueiOSChallengeUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		231489332D6D15C100F65CF7 /* LeagueArchitecturalChallenge.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = LeagueArchitecturalChallenge.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		231489362D6D15C100F65CF7 /* LeagueTechnicalChallenge.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = LeagueTechnicalChallenge.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -89,21 +91,15 @@
 		231481C12D65659F00F65CF7 = {
 			isa = PBXGroup;
 			children = (
+				231489362D6D15C100F65CF7 /* LeagueTechnicalChallenge.playground */,
+				231489332D6D15C100F65CF7 /* LeagueArchitecturalChallenge.playground */,
 				231481CC2D65659F00F65CF7 /* LeagueiOSChallenge */,
 				231481DD2D6565A000F65CF7 /* LeagueiOSChallengeTests */,
 				231481E72D6565A000F65CF7 /* LeagueiOSChallengeUITests */,
-				231481CB2D65659F00F65CF7 /* Products */,
+				231488572D6D12C100F65CF7 /* LeagueiOSChallenge.app */,
+				231488582D6D12C100F65CF7 /* LeagueiOSChallengeTests.xctest */,
+				231488592D6D12C100F65CF7 /* LeagueiOSChallengeUITests.xctest */,
 			);
-			sourceTree = "<group>";
-		};
-		231481CB2D65659F00F65CF7 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				231481CA2D65659F00F65CF7 /* LeagueiOSChallenge.app */,
-				231481DA2D6565A000F65CF7 /* LeagueiOSChallengeTests.xctest */,
-				231481E42D6565A000F65CF7 /* LeagueiOSChallengeUITests.xctest */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -128,7 +124,7 @@
 			packageProductDependencies = (
 			);
 			productName = LeagueiOSChallenge;
-			productReference = 231481CA2D65659F00F65CF7 /* LeagueiOSChallenge.app */;
+			productReference = 231488572D6D12C100F65CF7 /* LeagueiOSChallenge.app */;
 			productType = "com.apple.product-type.application";
 		};
 		231481D92D6565A000F65CF7 /* LeagueiOSChallengeTests */ = {
@@ -151,7 +147,7 @@
 			packageProductDependencies = (
 			);
 			productName = LeagueiOSChallengeTests;
-			productReference = 231481DA2D6565A000F65CF7 /* LeagueiOSChallengeTests.xctest */;
+			productReference = 231488582D6D12C100F65CF7 /* LeagueiOSChallengeTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		231481E32D6565A000F65CF7 /* LeagueiOSChallengeUITests */ = {
@@ -174,7 +170,7 @@
 			packageProductDependencies = (
 			);
 			productName = LeagueiOSChallengeUITests;
-			productReference = 231481E42D6565A000F65CF7 /* LeagueiOSChallengeUITests.xctest */;
+			productReference = 231488592D6D12C100F65CF7 /* LeagueiOSChallengeUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
@@ -210,7 +206,7 @@
 			mainGroup = 231481C12D65659F00F65CF7;
 			minimizedProjectReferenceProxies = 1;
 			preferredProjectObjectVersion = 77;
-			productRefGroup = 231481CB2D65659F00F65CF7 /* Products */;
+			productRefGroup = 231481C12D65659F00F65CF7;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
