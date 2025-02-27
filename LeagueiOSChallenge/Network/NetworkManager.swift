@@ -49,7 +49,7 @@ enum NetworkError: LocalizedError {
     private let apiHelper: APIHelper
     private let cacheManager: CacheManager
 
-    init(apiHelper: APIHelper = APIHelper(), cacheManager: CacheManager) {
+    init(apiHelper: APIHelper = APIHelper(), cacheManager: CacheManager = CacheManager()) {
         self.apiHelper = apiHelper
         self.cacheManager = cacheManager
     }

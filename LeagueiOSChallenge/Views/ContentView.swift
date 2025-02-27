@@ -8,11 +8,11 @@
 import SwiftUI
 
 struct ContentView: View {
-    @Environment(NetworkManager.self) private var networkManager
+    @Environment(NetworkContainer.self) var networkContainer
     
     var body: some View {
         Group {
-            switch networkManager.userType {
+            switch networkContainer.userType {
             case .none:
                 LoginView()
             case .loggedIn, .guest:
@@ -24,5 +24,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .environment(MockNetworkManager())
+        .environment(NetworkContainer(manager: MockNetworkManager()))
 }

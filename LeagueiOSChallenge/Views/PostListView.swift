@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct PostListView: View {
-    @Environment(NetworkManager.self) private var networkManager
+    @Environment(NetworkContainer.self) var networkContainer
     @State private var posts: [Post] = []
     @State private var selectedUser: User?
     @State private var error: Error? = nil
@@ -35,18 +35,18 @@ struct PostListView: View {
             .navigationTitle("Posts")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(networkManager.userType == .loggedIn ? "Logout" : "Exit") {
-                        if networkManager.userType == .guest {
+                    Button(networkContainer.userType == .loggedIn ? "Logout" : "Exit") {
+                        if networkContainer.userType == .guest {
                             showingThankYouAlert = true
                         } else {
-                            networkManager.logout()
+                            networkContainer.logout()
                         }
                     }
-                    .accessibilityIdentifier(networkManager.userType == .loggedIn ? "Logout" : "Exit")
+                    .accessibilityIdentifier(networkContainer.userType == .loggedIn ? "Logout" : "Exit")
                 }
             }
             .task {
-                await loadPosts(userId: networkManager.currentUser?.id)
+                await loadPosts(userId: networkContainer.currentUser?.id)
             }
             .sheet(item: $selectedUser) { user in
                 UserInformationView(user: user)
@@ -54,7 +54,7 @@ struct PostListView: View {
             }
             .alert("Thank You!", isPresented: $showingThankYouAlert) {
                 Button("OK") {
-                    networkManager.logout()
+                    networkContainer.logout()
                 }
             } message: {
                 Text("Thank you for trialing this app")
@@ -65,7 +65,7 @@ struct PostListView: View {
     
     private func loadPosts(userId: Int? = nil) async {
         do {
-            posts = try await networkManager.fetchPosts(withId: userId)
+            posts = try await networkContainer.fetchPosts(withId: userId)
         } catch {
             self.error = error
         }
@@ -74,8 +74,7 @@ struct PostListView: View {
 
 struct PostRowView: View {
     let post: Post
-    @Environment(NetworkManager.self) private var networkManager
-    @Environment(CacheManager.self) private var cacheManager
+    @Environment(NetworkContainer.self) var networkContainer
     @State private var user: User?
     @State private var error: Error?
     let onUserTapped: (User) -> Void
@@ -110,13 +109,7 @@ struct PostRowView: View {
             }
             .task {
                 do {
-                    // First check the cache
-                    if let cachedUser = cacheManager.getUser(withId: post.userId) {
-                        user = cachedUser
-                    } else {
-                        // If not in cache, fetch from network
-                        user = try await networkManager.fetchUser(withId: post.userId)
-                    }
+                    user = try await networkContainer.fetchUser(withId: post.userId)
                 } catch {
                     self.error = error
                 }

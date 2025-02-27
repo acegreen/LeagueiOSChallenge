@@ -10,10 +10,15 @@ import Foundation
 
 /// Mock implementation of NetworkManager for testing purposes
 /// Provides controlled responses and error states for testing network operations
-final class MockNetworkManager: NetworkManager {
-    
+class MockNetworkManager: NetworkManagerProtocol {
+    var userType: User.UserType = .none
+    var currentUser: User?
+    var apiToken: String?
+
+    private let cacheManager: CacheManager
+
     init(cacheManager: CacheManager = CacheManager()) {
-        super.init(apiHelper: MockAPIHelper(), cacheManager: cacheManager)
+        self.cacheManager = cacheManager
     }
     
     private func createMockUser(id: Int, username: String) -> User {
@@ -35,24 +40,27 @@ final class MockNetworkManager: NetworkManager {
     ///   - username: Test username ("invalid" for testing invalid credentials)
     ///   - password: Test password
     /// - Throws: NetworkError.invalidCredentials when username is "invalid"
-    override func login(username: String, password: String) async throws {
-        try await super.login(username: username, password: password)
+    func login(username: String, password: String) async throws {
+        if username == "invalid" {
+            throw NetworkError.invalidCredentials
+        }
+        
+        self.apiToken = "mock-token"
+        self.userType = .loggedIn
+        self.currentUser = createMockUser(id: 1, username: username)
     }
     
     /// Simulates guest login functionality
     /// - Throws: NetworkError for network failures
-    override func continueAsGuest() async throws {
+    func continueAsGuest() async throws {
         self.apiToken = "mock-guest-token"
         self.userType = .guest
-        
-        // Load all users into cache
-        try await loadAllUsers()
     }
     
     /// Returns mock posts for testing
     /// - Returns: Array of mock Post objects
     /// - Throws: NetworkError.unauthorized if no valid token exists
-    override func fetchPosts(withId: Int? = nil) async throws -> [Post] {
+    func fetchPosts(withId userId: Int? = nil) async throws -> [Post] {
         guard apiToken != nil else {
             throw NetworkError.unauthorized
         }
@@ -72,7 +80,7 @@ final class MockNetworkManager: NetworkManager {
     /// - Parameter userId: The ID of the mock user to fetch
     /// - Returns: A mock User object
     /// - Throws: NetworkError.unauthorized if no valid token exists
-    override func fetchUser(withId userId: Int) async throws -> User {
+    func fetchUser(withId userId: Int) async throws -> User {
         guard apiToken != nil else {
             throw NetworkError.unauthorized
         }
@@ -81,7 +89,7 @@ final class MockNetworkManager: NetworkManager {
     }
     
     /// Simulates logout by clearing all mock authentication state
-    override func logout() {
+    func logout() {
         userType = .none
         currentUser = nil
         apiToken = nil

@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct LoginView: View {
-    @Environment(NetworkManager.self) private var networkManager
+    @Environment(NetworkContainer.self) var networkContainer
     @State private var username = ""
     @State private var password = ""
     @State private var isLoading = false
@@ -69,7 +69,7 @@ struct LoginView: View {
         
         do {
             isLoading = true
-            try await networkManager.login(username: username, password: password)
+            try await networkContainer.login(username: username, password: password)
         } catch {
             self.error = error
         }
@@ -79,7 +79,7 @@ struct LoginView: View {
     private func loginAsGuest() async {
         isLoading = true
         do {
-            try await networkManager.continueAsGuest()
+            try await networkContainer.continueAsGuest()
         } catch {
             self.error = error
         }
@@ -89,5 +89,5 @@ struct LoginView: View {
 
 #Preview {
     LoginView()
-        .environment(MockNetworkManager())
+        .environment(NetworkContainer(manager: MockNetworkManager()))
 } 

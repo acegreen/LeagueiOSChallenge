@@ -1,7 +1,7 @@
 import Foundation
 import Observation
 
-@Observable class CacheManager {
+class CacheManager {
     private var userCache: [String: User] = [:]
     private var hasLoadedAllUsers = false
     
